@@ -1,0 +1,50 @@
+document_classification_task:
+  description: >
+    Analyze the incoming fax document and extract all relevant structural information.
+    Identify document type, key sections, and core patient/provider information. \n
+    fax_data: {data}
+  expected_output: >
+    A simple text based summary of the document structure and key details.
+    - Document classification
+    - Core patient demographics
+    - Provider information
+    - Document sections
+  agent: document_classifier
+
+medical_analysis_task:
+  description: >
+    Evaluate the clinical appropriateness of the referral based on:
+    - Prior testing and procedures
+    - Current symptoms
+    - Medical necessity for neurology consultation
+    Flag any concerning patterns or missing critical information.
+  expected_output: >
+    A clinical analysis JSON block containing:
+    - Appropriateness score
+    - Prior testing identification
+    - Clinical flags
+    - Recommendation (schedule/review/reject)
+  agent: medical_analyzer
+
+alignment_task:
+  description: >
+    Cross-validate all extracted information and analysis results.
+    Ensure clinical consistency across all fields.
+    Generate final structured output for the main system.
+  expected_output: >
+    A validated JSON payload containing the following structure:
+    data: {
+      patientName: <string>,
+      patientDOB: <string>,
+      referringProvider: <string>,
+      referringPractice: <string>,
+      pastDiagnoses: <{ 
+        name<string>, ICD10<string|null>, date<string|null>
+      }>[],
+      appropriateReferral: <boolean>,
+      appropriatenessScore: <float> (1-10),
+      recommendedAction: <string> (schedule/review/reject),
+      recommendedAppointmentType: <oneof {possible_referral_reasons}>,
+      otherRecommendations: <string>[] | null 
+    }
+  agent: alignment_agent
