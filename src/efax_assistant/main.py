@@ -22,7 +22,12 @@ def run():
     """
     Run the crew.
     """
-    inputs = {"input": "goes here"}
+    inputs = {
+        "data": "",
+        "possible_referral_reasons": "",
+        "provider_name": "",
+    }
+
     EfaxAssistant().crew().kickoff(inputs=inputs)
 
 

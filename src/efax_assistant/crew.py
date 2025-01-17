@@ -19,9 +19,9 @@ class EfaxAssistant:
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
     @agent
-    def document_classifier(self) -> Agent:
+    def document_summarizer(self) -> Agent:
         return Agent(
-            config=self.agents_config["document_classifier"],
+            config=self.agents_config["document_summarizer"],
             verbose=True,
         )
 
@@ -43,20 +43,23 @@ class EfaxAssistant:
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
     @task
-    def document_classification_task(self) -> Task:
+    def document_sumarization_task(self) -> Task:
         return Task(
-            config=self.tasks_config["document_classification_task"],
+            config=self.tasks_config["document_sumarization_task"],
         )
 
     @task
     def medical_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config["medical_analysis_task"], output_file="report.md"
+            config=self.tasks_config["medical_analysis_task"],
         )
 
     @task
     def alignment_task(self) -> Task:
-        return Task(config=self.tasks_config["alignment_task"], output_file="report.md")
+        return Task(
+            config=self.tasks_config["alignment_task"],
+            output_file="report.md",
+        )
 
     @crew
     def crew(self) -> Crew:

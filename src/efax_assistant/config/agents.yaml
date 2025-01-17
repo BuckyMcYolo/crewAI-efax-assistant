@@ -1,4 +1,4 @@
-document_classifier:
+document_summarizer:
   role: >
     Medical Document Classification Specialist
   goal: >
@@ -12,7 +12,7 @@ medical_analyzer:
   role: >
     Clinical Referral Analyst
   goal: >
-    Evaluate referral appropriateness and identify critical medical information
+    Evaluate referral appropriateness and identify conflicting referrals
   backstory: >
     You're a clinical specialist with extensive experience in neurology referrals.
     Your expertise lies in evaluating medical necessity, identifying prior testing,

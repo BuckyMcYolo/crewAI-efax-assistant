@@ -1,15 +1,17 @@
-document_classification_task:
+document_sumarization_task:
   description: >
-    Analyze the incoming fax document and extract all relevant structural information.
-    Identify document type, key sections, and core patient/provider information. \n
+    Your job is to take the unstructured fax information and turn it into data that can be analyzed for {provider_name}. Please analyze the incoming fax document and extract all relevant information. You work for {provider_name}, so you know that these faxes are always being sent to them.
+    Identify document type, key sections, and core patient/provider information. \n\n
     fax_data: {data}
   expected_output: >
-    A simple text based summary of the document structure and key details.
-    - Document classification
-    - Core patient demographics
-    - Provider information
-    - Document sections
-  agent: document_classifier
+    A simple text based summary of the document structure and key details. It is ok to provide a lot of information here, as the next agent will be responsible for parsing it.
+    Key elements to extract:
+    - Core patient demographics (ex. name, DOB, height, weight , etc..)
+    - Referral reason including symptoms, diagnosis, or other relevant information (summary)
+    - Referring provider information including practice information such as name, address, fax number and phone number
+    - Prior testing done (all details) and if the testing is included in the fax
+    - Any other relevant information that may be useful for the next agent
+  agent: document_summarizer
 
 medical_analysis_task:
   description: >
@@ -17,13 +19,14 @@ medical_analysis_task:
     - Prior testing and procedures
     - Current symptoms
     - Medical necessity for neurology consultation
-    Flag any concerning patterns or missing critical information.
+    - If the patient has been seen by a neurologist before or had a NCS/EMG done in the past you should mark this as a conflicting referral.
   expected_output: >
-    A clinical analysis JSON block containing:
+    A clinical analysis brief sumary containing:
     - Appropriateness score
     - Prior testing identification
-    - Clinical flags
+    - If Conflicting referrals are present
     - Recommendation (schedule/review/reject)
+    - Other recommendations or notes
   agent: medical_analyzer
 
 alignment_task:
@@ -32,6 +35,7 @@ alignment_task:
     Ensure clinical consistency across all fields.
     Generate final structured output for the main system.
   expected_output: >
+    Confirm the final structured output is accurate and consistent with the original fax document and include potential conflicting referrals if present in the previous analysis.
     A validated JSON payload containing the following structure:
     data: {
       patientName: <string>,
@@ -43,8 +47,17 @@ alignment_task:
       }>[],
       appropriateReferral: <boolean>,
       appropriatenessScore: <float> (1-10),
+      conflictingReferralsPresent: <boolean>,
+      conflictingReferrals: <string[]> | null,
+      hpi: <string>,
+      currentMedications: <{name<string>, dose<string>, frequency<string>}[]>,
+      allergies: <{name<string>, reaction<string>}[]>,
       recommendedAction: <string> (schedule/review/reject),
       recommendedAppointmentType: <oneof {possible_referral_reasons}>,
+      recentImaging: <{name<string>, date<string>}[]> | null,
       otherRecommendations: <string>[] | null 
     }
   agent: alignment_agent
+  context:
+    - document_sumarization_task
+    - medical_analysis_task
